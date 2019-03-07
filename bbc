@@ -1,0 +1,36 @@
+<?php 
+require_once('./vendor/autoload.php'); 
+// Namespace 
+use \LINE\LINEBot\HTTPClient\CurlHTTPClient; 
+use \LINE\LINEBot; 
+use \LINE\LINEBot\MessageBuilder\TextMessageBuilder; 
+
+$channel_token = 'mtHYEqH2qE0GXW39Zf2PjljDWKZ1IiF5wyt/ppYU+k2z6Dx5PiuJx7J0/o7KVnddIw8yMZtbShkxvjoanNtFOFFHGTnrPjHqMX+n9pdkTkzoQ5GWxrnhyAYsrKBzNlItSVC/6eQGfdFFbd5m6Ovh3AdB04t89/1O/w1cDnyilFU='; 
+$channel_secret = '52bb6b7f6c565ea3959740e974e59411'; 
+
+// Get message from Line API 
+$content = file_get_contents('php://input'); 
+$events = json_decode($content, true); 
+
+if (!is_null($events['events'])) { 
+// Loop through each event 
+foreach ($events['events'] as $event) { 
+// Line API send a lot of event type, we interested in message only. 
+if ($event['type'] == 'message') { 
+switch($event['message']['type']) { 
+case 'text': 
+// Get replyToken 
+$replyToken = $event['replyToken']; 
+// Reply message 
+$respMessage = 'Hello, your message is '. $event['message']['text']; 
+
+$httpClient = new CurlHTTPClient($channel_token); 
+$bot = new LINEBot($httpClient, array('channelSecret' => $channel_secret)); 
+$textMessageBuilder = new TextMessageBuilder($respMessage); 
+$response = $bot->replyMessage($replyToken, $textMessageBuilder); 
+break; } 
+} 
+} 
+} 
+
+echo "OK";
